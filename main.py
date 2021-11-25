@@ -2,7 +2,7 @@ from flask import Flask
 from flask import request
 from flask import jsonify
 
-#instalar o flask-cors (pip3 install -U flask-cors)
+#instalar o flask_cors (pip3 install -U flask-cors)
 from flask_cors import CORS
 
 
@@ -24,11 +24,12 @@ CORS(app)
 def cadastrar():
 
     if request.method == 'POST':
+        dados = request.get_json()
 
-        name = request.json['name']
-        price = request.json['price']
-        content = request.json['content']
-        imageUrl = request.json['imageUrl']
+        name = dados['name']
+        price = dados['price']
+        content = dados['content']
+        imageUrl = dados['imageUrl']
 
         mensagem = 'Erro - nao cadastrado'
 
@@ -120,29 +121,42 @@ def deletar(id=None):
 #######################################################
 
 # Rota de Alteração de dados
-'''@app.route('/produtos/alterar/<int:codproduto>', methods=['PUT'])
+@app.route('/alterar/<int:id>', methods=['PUT'])
 
-def alterar(codproduto=None):
-    campo = 'precovenda'
-    valor = '1'
-    if codproduto == None:
+def alterar(id=None):
+    if id == None:
         return jsonify({'mensagem': 'parametro invalido'})
     else:
-        try:
-            conn = sqlite3.connect('database/db-produtos.db')
+        if request.method == 'PUT':
+            dados = request.get_json()
 
-            sql = ''UPDATE produtos SET ''+str(campo)+''=''+str(valor)+'' WHERE codproduto ='' + str(codproduto)
+            name = dados['name']
+            price = dados['price']
+            content = dados['content']
+            imageUrl = dados['imageUrl']
 
-            cur = conn.cursor()
-            cur.execute(sql)
+            if name and price and content and imageUrl:
+                registro = (name, price, content, imageUrl)
 
-            conn.commit()
+                try:
+                    conn = sqlite3.connect('databases/produtos.db')
+                    sql = '''UPDATE produtos SET name=?, price=?, content=?, imageUrl=? WHERE id =''' + str(id)
+                    cur = conn.cursor()
+                    cur.execute(sql, registro)
+                    conn.commit()
 
-            return jsonify({"menssagem": 'registro alterado'})
+                    if cur.rowcount > 0:
+                        return jsonify({'mensagem': 'registro alterado com sucesso'})
+                    else:
+                        return jsonify({'mensagem': 'registro não encontrado'})
 
-        except Error as e:
-            return jsonify({'menssagem': e})
-
+                    return jsonify({"menssagem": 'registro alterado'})
+                except Error as e:
+                    return jsonify({'menssagem': e})
+                finally:
+                    conn.close()
+        else:
+            return jsonify({'mensagem': 'campos <descricao>, <preco>, e <qtd> sao obrigatorios'})
 #######################################################
 
 # Rota de Erro
@@ -151,7 +165,6 @@ def pagina_nao_encontrada(e):
     return '404.html', 404
 
 
-'''
 #######################################################
 # Execucao da Aplicacao
 
