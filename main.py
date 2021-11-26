@@ -3,7 +3,7 @@ from flask import request
 from flask import jsonify
 
 #instalar o flask_cors (pip3 install -U flask-cors)
-from flask_cors import CORS
+#from flask_cors import CORS
 
 
 import sqlite3
@@ -14,7 +14,7 @@ from sqlite3 import Error
 # Instancia da Aplicacao Flask
 
 app = Flask(__name__)
-CORS(app)
+#CORS(app)
 
 #######################################################
 
